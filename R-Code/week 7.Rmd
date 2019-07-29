@@ -1,0 +1,106 @@
+---
+title: "Week7 Data Vizualization"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+# Two diffrent types of geom point charts with lattice grid
+```{r echo=TRUE, message=FALSE, warning=FALSE}
+library(ggplot2)
+data("mpg")
+ggplot(data = mpg) + 
+  geom_point(mapping = aes(x = displ, y = hwy)) +
+  facet_grid(drv ~ .)
+
+ggplot(data = mpg) + 
+  geom_point(mapping = aes(x = displ, y = hwy)) +
+  facet_grid(. ~ cyl)
+
+```
+
+#GGPlot using random data
+
+```{r echo=TRUE, message=FALSE, warning=FALSE}
+library(ggplot2)
+library(plotly)
+#dataset has been downlaoded from Climate.gov.using this data set to generate vizualizations
+climate<-read.csv("/Users/gmutya048/Downloads/records.csv")
+
+minimum_T <- climate[climate$Element == "All-Time Minimum Temperature" ,c(1,2,4) ]
+minimum_T_unique<- unique(minimum_T)
+
+#plotting the data
+p2 = ggplot(minimum_T_unique, aes(x = State, y = Value)) + geom_bar(aes(fill=State),stat="identity",width = 0.75, position = position_dodge()) + xlab("State") + ylab("Lowest Recorded Temperature in F") +
+theme_classic()+
+theme(plot.background = element_rect(fill = "grey80"), axis.text.x=element_blank(),
+      axis.ticks.x=element_blank()
+      ) +  ggtitle("Lowest Recorded Temperature by States in the US")
+ggplotly(p2)
+
+#xlab and ylab are names given to the plot axis
+#fill is the type of color pallet we want to use
+#ggtitle is the title in ggplot
+```
+
+# Ploting MT cars data 
+
+```{r echo=TRUE, message=FALSE, warning=FALSE}
+
+plot(mtcars$wt,mtcars$mpg,main="Relationship between 'Wt' & 'MPG'",xlab="Weight",ylab="Miles per Gallon", col='darkred', cex =0.9, pch=16, panel.first = grid())
+ # col is used to define the color of data pointers
+#cex and pch also define the size and shape of the data points
+# regression line
+abline(lm(mtcars$mpg~mtcars$wt), col="darkblue")
+# abline is the regression line plotted in this plot 
+```
+
+#Box Plot plotted btween weight and no of cyl in mt cars data set
+
+```{r echo=TRUE, message=FALSE, warning=FALSE}
+boxplot(wt~cyl, data = mtcars, col= c("seagreen","darkred","blue"), xlab="No of Cylinders", ylab="weight")
+
+#col is defined to add color to each box plot
+#Xlab and Y lab are lables to the axis
+
+```
+
+#Continuous Barplots for the data flights.csv to show the flight delyas based on diffrent reasons
+
+```{r echo=TRUE, message=FALSE, warning=FALSE}
+library(readr)
+flights <- read_csv("C:/Users/gmutya048/Videos/flights.csv")
+#View(flights)
+#Defining a function to take the data which lies between 0 to 90 %
+p.90 = function(x){
+  p = seq(0, 0.9, 0.1)
+  quantile(x[x>0], probs = p, na.rm=T)
+}
+barplot(p.90(flights$LATE_AIRCRAFT_DELAY),
+        main = "Flight Delay Distribution (0-90th percentile)",
+        xlab = "Percentile",
+        ylab = "Delay (Minutes)",
+        xlim = c(0, length(p.90(flights$LATE_AIRCRAFT_DELAY))*3.5),
+        col = "dark blue")
+barplot(c(rep(0,length(p.90(flights$LATE_AIRCRAFT_DELAY))), p.90(flights$WEATHER_DELAY)),
+        col = "dark red",
+        add = TRUE)
+barplot(c(rep(0,length(p.90(flights$LATE_AIRCRAFT_DELAY))*2), p.90(flights$AIRLINE_DELAY)),
+        col = "dark green",
+        add = TRUE)
+legend(0.5, 95, c("Late Aircraft", "Weather", "Airline"),
+       fill = c("dark blue", "dark red", "dark green"), cex = 0.65)
+
+```
+
+
+#When plotting spatial data we use maps to show the plots. Data points are mapped on the map We can use google maps or any other kinds of maps based on how we want to present the data
+```{r echo=TRUE, message=FALSE, warning=FALSE}
+nz <- map_data("nz")
+
+ggplot(nz, aes(long, lat, group = group)) +
+  geom_polygon(fill = "white", colour = "black")
+
+
+```

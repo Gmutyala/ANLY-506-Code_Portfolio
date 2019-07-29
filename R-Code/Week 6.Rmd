@@ -1,0 +1,87 @@
+---
+title: "Week_6-Data Transformation"
+output: html_document
+Author: Gayathri Mutyala
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r echo=TRUE, message=FALSE, warning=FALSE}
+library(nycflights13)
+library(tidyverse)
+#View(flights)
+
+```
+
+#Data Filtering Some time we need to filter the data as per our data analysis requiremnts so Following Filter techniques are used in R
+
+```{r echo=TRUE, message=FALSE, warning=FALSE}
+Aug31<-filter(flights, month == 8, day == 31)
+Aug31
+Feb<-filter(flights, month == 2)
+Feb
+Dec25<-filter(flights, month == 12, day == 25)
+Dec25
+```
+
+# Using logical operatios to filter  the data and do data manupulations
+```{r echo=TRUE, message=FALSE, warning=FALSE}
+feb1to15<-filter(flights, month==2, day==1|day==15)
+#filtering data from month of feb and dates between 1 to 15 th.
+
+```
+
+
+Finding the missing values in the given dataset
+```{r echo=TRUE, message=FALSE, warning=FALSE}
+#is.na(feb1to15)
+# fasle denotes no missing data and True denotes the places of missing data
+str(feb1to15)
+
+```
+
+#Arranging rows as per our requirement assending or desending 
+
+```{r echo=TRUE, message=FALSE, warning=FALSE}
+
+arrange(Aug31, desc(origin))
+#Arranging the list of flights from aug 31 st in a decending order of origin
+
+```
+
+#Shuffling columns front and back as we want to look at the data and filtering required columns
+```{r echo=TRUE, message=FALSE, warning=FALSE}
+ 
+select(flights, flight, tailnum, origin, dest)   #filtering requeried columns 
+select(Dec25, flight,carrier, tailnum, origin, dest, everything()) # add the required columns to the first few columns. everything pulls all the columns from the data set.
+
+```
+
+
+#Rename column names
+```{r echo=TRUE, message=FALSE, warning=FALSE}
+rename(Feb, tail_num = tailnum)
+
+#Changed the coulmn name tail_num into tailnum
+
+```
+
+
+Adding new columns to the data set
+```{r echo=TRUE, message=FALSE, warning=FALSE}
+mutate(feb1to15, speed= distance / air_time * 60, traveltime=sched_arr_time+arr_delay)
+
+#added speed column by using distance and time columns and added travel time column by adding scheduled time and departule delays
+```
+
+
+```{r echo=TRUE, message=FALSE, warning=FALSE}
+
+
+
+```
+
+
+

@@ -1,0 +1,129 @@
+---
+title: "Week-10_Cluster_Analysis"
+output: html_document
+Author: "Gayathri Mutyala"
+
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+#Cluster Analysis: to perform cluster analysis data shoul be cleaned and there should not be any missing values in the data.Data must also be standardized
+```{r echo=TRUE, message=FALSE, warning=FALSE}
+set.seed(1234)
+x <- rnorm(12, mean = rep(1:3, each = 4), sd = 0.2) 
+y <- rnorm(12, mean = rep(c(1, 2, 1), each = 4), sd = 0.2)
+plot(x, y, col = "darkred", pch = 20, cex = 1.5)
+text(x + 0.05, y + 0.05, labels = as.character(1:12))
+
+```
+#rnorm is used to create random distribution os numbers
+# we generated 12 random sets of numbers with in given range of mean and standard deviation 
+#plotted the x and y values on a plot to see how data is distributed
+#Use of Kmeans function to identify the cluster types
+```{r echo=TRUE, message=FALSE, warning=FALSE}
+dataFrame <- data.frame(x, y)
+kmeansObj <- kmeans(dataFrame, centers = 3)
+names(kmeansObj)
+kmeansObj$cluster # we can see which cluster is assigned to each data point
+```
+```{r echo=TRUE, message=FALSE, warning=FALSE}
+set.seed(1234)
+dataMatrix <- as.matrix(dataFrame)[sample(1:12), ]
+kmeansObj <- kmeans(dataMatrix, centers = 3)
+
+#Then we can make an heat map plot using the K-means clusters.
+
+par(mfrow = c(1, 2))
+image(t(dataMatrix)[, nrow(dataMatrix):1], yaxt = "n", main = "Original Data")
+image(t(dataMatrix)[, order(kmeansObj$cluster)], yaxt = "n", main = "Clustered Data")
+
+
+```
+
+#1.Preparing data for cluster analysis
+```{r echo=TRUE, message=FALSE, warning=FALSE}
+library(tidyverse)  # This is for data manipulation and data cleaning
+library(cluster)    # This library is for clustering algorithms
+library(factoextra) # This library is for clustering algorithms & visualization
+df <- USArrests
+df <- na.omit(df) # removing the missing values from the dataset
+```
+
+#2. Standardizing and Data scaling
+```{r echo=TRUE, message=FALSE, warning=FALSE}
+df <- scale(df)
+head(df)
+```
+#3.Measuring the cluster distances
+```{r echo=TRUE, message=FALSE, warning=FALSE}
+distance <- get_dist(df)  # to find the cluster distances
+fviz_dist(distance, gradient = list(low = "#00AFBB", mid = "white", high = "#FC4E07"))
+
+```
+#4. determining Kmeans value by using kmeans function in R
+```{r echo=TRUE, message=FALSE, warning=FALSE}
+
+k2 <- kmeans(df, centers = 2, nstart = 25)
+str(k2)
+k2
+```
+#5.Creating a cluster plot 
+```{r echo=TRUE, message=FALSE, warning=FALSE}
+fviz_cluster(k2, data = df)
+```
+
+#Determining kmeans for others
+```{r echo=TRUE, message=FALSE, warning=FALSE}
+k3 <- kmeans(df, centers = 3, nstart = 25)
+k4 <- kmeans(df, centers = 4, nstart = 25)
+k5 <- kmeans(df, centers = 5, nstart = 25)
+
+```
+
+# ploting the data to compare
+
+```{r echo=TRUE, message=FALSE, warning=FALSE}
+p1 <- fviz_cluster(k2, geom = "point", data = df) + ggtitle("k = 2")
+p2 <- fviz_cluster(k3, geom = "point",  data = df) + ggtitle("k = 3")
+p3 <- fviz_cluster(k4, geom = "point",  data = df) + ggtitle("k = 4")
+p4 <- fviz_cluster(k5, geom = "point",  data = df) + ggtitle("k = 5")
+
+library(gridExtra)
+grid.arrange(p1, p2, p3, p4, nrow = 2)
+
+```
+
+#Determining the optimal clusters
+
+#1.Elbow Method
+```{r echo=TRUE, message=FALSE, warning=FALSE}
+set.seed(123)
+
+fviz_nbclust(df, kmeans, method = "wss")
+```
+
+#2.Silhouette Method
+```{r echo=TRUE, message=FALSE, warning=FALSE}
+fviz_nbclust(df, kmeans, method = "silhouette")
+```
+
+#3.Gap Stastics method
+```{r echo=TRUE, message=FALSE, warning=FALSE}
+gap_stat <- clusGap(df, FUN = kmeans, nstart = 25,
+                    K.max = 10, B = 50)
+```
+#Extracting the analysis results
+
+```{r echo=TRUE, message=FALSE, warning=FALSE}
+set.seed(123)
+final <- kmeans(df, 4, nstart = 25)
+print(final)
+
+```
+#Plotting the results
+
+```{r echo=TRUE, message=FALSE, warning=FALSE}
+fviz_cluster(final, data = df)
+```

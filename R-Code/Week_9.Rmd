@@ -1,0 +1,61 @@
+---
+title: "Week_9-Plotting Systems & Graphic Devices"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+#Plotting Data in a scattre plot
+
+```{r echo=TRUE, message=FALSE, warning=FALSE}
+
+data(mtcars)
+with(mtcars, plot(mpg,wt)) #plot function determines which values to be plotted
+title("Speed vs.Weight of the car") # Title is the function to add a header to the plot
+
+
+```
+
+#Lattice plot Xyplot is a type of lattice plot used 
+#xlab is name of xaxis, ylab is name of Yaxis
+
+```{r echo=TRUE, message=FALSE, warning=FALSE}
+library(lattice)
+attach(mtcars)
+xyplot(mpg~wt|cyl*gear, 
+   main="Scatterplots by Cylinders and Gears", 
+   ylab="Miles per Gallon", xlab="Car Weight")    
+```
+
+#ggplots Qplot is used to create a scatter plot in ggplot2
+
+```{r echo=TRUE, message=FALSE, warning=FALSE}
+library(ggplot2)
+data("mtcars")
+qplot(mpg, wt, data = mtcars, main = "ggplot for MTCars data") # main is used to add a title to the plot, data= define the data set which is used to create the plot
+
+```
+
+#Plotting a graph and saving it in a png format
+
+```{r echo=TRUE, message=FALSE, warning=FALSE}
+png(file = "Scatter plot Matrix of MTCars.png")
+splom(mtcars[c(1,3,4,5,6)], 
+   main="MTCARS Data")
+dev.off() 
+
+```
+
+
+#Copying a plot in pdf format using R
+
+```{r echo=TRUE, message=FALSE, warning=FALSE}
+ggplot(mtcars, aes(x=wt, y=mpg)) + 
+  geom_point(shape=18, color="blue")+
+  geom_smooth(method=lm,  linetype="dashed",
+             color="darkred", fill="blue")
+dev.copy(pdf, file = "ggplot_MTCars.pdf")
+dev.off()
+```
