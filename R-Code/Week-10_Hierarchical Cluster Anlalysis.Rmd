@@ -1,0 +1,154 @@
+---
+title: "Week-10_Hierarchical Cluster Analysis"
+output: html_document
+Author: "Gayathri Mutyala"
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r echo=TRUE, message=FALSE, warning=FALSE}
+library(tidyverse)  # data manipulation
+library(cluster)    # clustering algorithms
+library(factoextra) # clustering visualization
+library(dendextend) #for comparing two dendrograms
+```
+
+#Removing Missing Values and Scaling the data
+
+```{r echo=TRUE, message=FALSE, warning=FALSE}
+df <- USArrests
+df <- na.omit(df) # removing the missing values from the dataset
+df <- scale(df)
+head(df)
+
+```
+#Agglomerative Hierarchical Clustering: this is done by using hcust and agnes in R
+
+
+# Dissimilarity matrix by euclidean method
+
+```{r echo=TRUE, message=FALSE, warning=FALSE}
+
+d <- dist(df, method = "euclidean")
+
+```
+
+
+# Hierarchical clustering using Complete Linkage method
+
+```{r echo=TRUE, message=FALSE, warning=FALSE}
+
+hc1 <- hclust(d, method = "complete" )
+
+```
+
+
+# Plot the obtained dendrogram
+```{r echo=TRUE, message=FALSE, warning=FALSE}
+
+plot(hc1, cex = 0.6, hang = -1)
+
+```
+
+# Compute with agnes
+
+```{r echo=TRUE, message=FALSE, warning=FALSE}
+
+hc2 <- agnes(df, method = "complete")
+# Agglomerative coefficient in R
+hc2$ac
+
+```
+
+#Visualizing the dendograms
+```{r echo=TRUE, message=FALSE, warning=FALSE}
+hc3 <- agnes(df, method = "ward")
+pltree(hc3, cex = 0.6, hang = -1, main = "Dendrogram of agnes") 
+
+```
+
+#Divisive Hierarchical Clustering: This is done By diana in R
+# How to compute divisive hierarchical clustering
+```{r echo=TRUE, message=FALSE, warning=FALSE}
+hc4 <- diana(df)
+
+# Divise coefficient; amount of clustering structure found
+hc4$dc
+
+```
+
+
+# plotting dendrogram
+```{r echo=TRUE, message=FALSE, warning=FALSE}
+pltree(hc4, cex = 0.6, hang = -1, main = "Dendrogram of diana")
+
+```
+
+#After Plotting the dendogarms we need to cut the tree into groups BY Wrads Mthod 
+
+```{r echo=TRUE, message=FALSE, warning=FALSE}
+hc5 <- hclust(d, method = "ward.D2" )
+
+# Cut tree into 4 groups
+sub_grp <- cutree(hc5, k = 4)
+
+# To find the Number of members in each cluster
+table(sub_grp)
+
+```
+
+#Plotting the Cluster Dendograms
+```{r echo=TRUE, message=FALSE, warning=FALSE}
+
+plot(hc5, cex = 0.6)
+rect.hclust(hc5, k = 4, border = 2:5)
+
+```
+
+# we can Compute distance matrix
+
+```{r echo=TRUE, message=FALSE, warning=FALSE}
+
+res.dist <- dist(df, method = "euclidean")
+```
+
+# Compute 2 hierarchical clusterings
+
+```{r echo=TRUE, message=FALSE, warning=FALSE}
+hc1 <- hclust(res.dist, method = "complete")
+hc2 <- hclust(res.dist, method = "ward.D2")
+```
+# Creating two dendrograms
+```{r echo=TRUE, message=FALSE, warning=FALSE}
+dend1 <- as.dendrogram (hc1)
+dend2 <- as.dendrogram (hc2)
+
+```
+
+#Comparing Two dendograms
+```{r echo=TRUE, message=FALSE, warning=FALSE}
+tanglegram(dend1, dend2)
+
+```
+# Now we can detrmine the optimal clusters using any of the three methods
+
+#1.Elbow Method
+```{r echo=TRUE, message=FALSE, warning=FALSE}
+fviz_nbclust(df, FUN = hcut, method = "wss")
+
+```
+
+#2. Silhouette Method
+```{r echo=TRUE, message=FALSE, warning=FALSE}
+
+fviz_nbclust(df, FUN = hcut, method = "silhouette")
+```
+
+#3.Gap Stat Method
+```{r echo=TRUE, message=FALSE, warning=FALSE}
+gap_stat <- clusGap(df, FUN = hcut, nstart = 25, K.max = 10, B = 50)
+fviz_gap_stat(gap_stat)
+
+```
